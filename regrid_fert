@@ -1,0 +1,94 @@
+;====================================================================
+; fert_scale.dat     : NOx from fertilized soil
+;====================================================================
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+
+begin
+
+;--------------------------------------------------------------------
+; Define variables
+;--------------------------------------------------------------------
+
+   load "grid_0.5_36k"
+
+   InFertFile   = InDir  + "fert_scale.dat"
+   OutFertFile  = OutDir + "nox_fert.dat"
+   OutFertFile2 = OutDir + "fert_2D.csv"
+
+;--------------------------------------------------------------------
+; prepare input data
+;--------------------------------------------------------------------
+   print("Reading file: " + InFertFile)
+   m_fert = asciiread(InFertFile,-1,"string")
+;;;   delim = " "
+;;;   lon_fert = toint(str_get_field(m_fert,1,delim))
+;;;   lat_fert = toint(str_get_field(m_fert,2,delim))
+;;;   infert1d = tofloat(str_get_field(m_fert,3,delim))
+   lon_fert = toint  (str_get_cols(m_fert, 0, 5))
+   lat_fert = toint  (str_get_cols(m_fert, 6,11))
+   infert1d = tofloat(str_get_cols(m_fert,12,21))
+   fertloop = dimsizes(infert1d)
+
+   infert = new((/nrow1,ncol1/),float)
+   do i = 1,ncol1
+   do j = 1,nrow1
+     infert(j-1,i-1) = 0
+   end do
+   end do
+   
+   do ij = 1,fertloop
+     infert(lat_fert(ij-1)-1,lon_fert(ij-1)-1) = infert1d(ij-1)
+   end do
+
+;--------------------------------------------------------------------
+; projection
+;--------------------------------------------------------------------
+   if(IFLAG.eq.0) then
+     outfert = rgrid2rcm(lat1d,lon1d,infert,lat2d,lon2d,0)
+   else
+   if(IFLAG.eq.1) then
+     outfert = rcm2rgrid(lat2d,lon2d,infert,lat1d,lon1d,0)
+   end if
+   end if
+
+; note: some CMAQ 36-km grids are beyond the range of the input
+; coordinates (GC domain), so here set these missing values to 0
+   do j = 1, nrow2
+   do i = 1, ncol2
+     if(ismissing(outfert(j-1,i-1))) then
+       outfert(j-1,i-1) = 0
+     end if
+   end do
+   end do
+
+   outfert1d = ndtooned(outfert)
+
+;--------------------------------------------------------------------
+; save 2-D data
+;--------------------------------------------------------------------
+;;;   fmtf = ncol2+"e10.3"
+;;;   opt = True
+;;;   opt@fout = OutFertFile2
+;;;   write_matrix(outfert,fmtf,opt)
+;;;   print("Writing file: " + OutFertFile2)
+
+;--------------------------------------------------------------------
+; save 1-D data
+;--------------------------------------------------------------------
+   data  = new( npts2, "string")
+   do j = 1, nrow2
+   do i = 1, ncol2
+     ijloop = (j-1)*ncol2+i
+     data(ijloop-1) = sprinti("%6i",i)
+     data(ijloop-1) = data(ijloop-1) + sprinti("%6i",j)
+     data(ijloop-1) = data(ijloop-1) \
+                    + sprintf("%10.3e ",outfert1d(ijloop-1))
+   end do
+   end do
+   asciiwrite(OutFertFile, data)
+   print("Writing file: " + OutFertFile)
+
+end

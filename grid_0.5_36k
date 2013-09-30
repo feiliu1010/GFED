@@ -1,0 +1,101 @@
+
+;====================================================================
+; CMAQ 36-km domain (169x113)   <zheng>
+;====================================================================
+
+   InDir_36k    = "data/"
+   filename_36k = InDir_36k + "domain_36km.csv"
+   nrow_36k = 113
+   ncol_36k = 169
+
+   lines_header_36k = asciiread(filename_36k,-1,"string")
+   header_36k = lines_header_36k(0)
+   lines_36k  = lines_header_36k(1:)
+   delim = ","
+   lat_36k = tofloat(str_get_field(lines_36k,6,delim))
+   lon_36k = tofloat(str_get_field(lines_36k,7,delim))
+   lat2d_36k = onedtond(lat_36k,(/nrow_36k,ncol_36k/))
+   lon2d_36k = onedtond(lon_36k,(/nrow_36k,ncol_36k/))
+
+;====================================================================
+; CMAQ 36-km domain (164x97)   <liu>
+;====================================================================
+
+   InDir_36k2    = "data/"
+   filename_36k2 = InDir_36k2 + "domain_36km_164x97.csv"
+   nrow_36k2 = 97
+   ncol_36k2 = 164
+
+   lines_header_36k2 = asciiread(filename_36k2,-1,"string")
+   header_36k2 = lines_header_36k2(0)
+   lines_36k2  = lines_header_36k2(1:)
+   delim = ","
+   lat_36k2 = tofloat(str_get_field(lines_36k2,6,delim))
+   lon_36k2 = tofloat(str_get_field(lines_36k2,7,delim))
+   lat2d_36k2 = onedtond(lat_36k2,(/nrow_36k2,ncol_36k2/))
+   lon2d_36k2 = onedtond(lon_36k2,(/nrow_36k2,ncol_36k2/))
+
+;====================================================================
+; GEOS-Chem China/SE Asia 0.5*0.667 nested grid (121 lons x 133 lats)
+;====================================================================
+
+   lonin = 0.666667
+   latin = 0.5
+   nlon  = 121
+   nlat  = 133
+   lonst = 70
+   latst = -11
+
+   lonen = lonst+lonin*(nlon-1)
+   laten = latst+latin*(nlat-1)
+   LON   = fspan(lonst,lonen,nlon)
+   LAT   = fspan(latst,laten,nlat)
+
+;====================================================================
+; Define arguments as Input
+;====================================================================
+
+; Latitude-Longitude
+   nlat1d = nlat
+   nlon1d = nlon
+   lat1d  = LAT
+   lon1d  = LON
+
+; (X,Y)
+   nlat2d = nrow_36k2
+   nlon2d = ncol_36k2
+   lat2d  = lat2d_36k2
+   lon2d  = lon2d_36k2
+
+; Latitude-Longitude to (X,Y)
+   IFLAG  = 0                  ; ll2xy
+   InDir  = "data/"
+   OutDir = "output/36km2/"
+   InExt  = "05x0666"          ; used in climatprep.dat
+   OutExt = ""
+
+; (X,Y) to Latitude-Longitude
+;   IFLAG  = 1                  ; xy2ll
+;   InDir  = "output/36km/"
+;   OutDir = "output/gc0.5/"
+;   InExt  = ""
+;   OutExt = "05x0666"          ; used in climatprep.dat
+
+;--------------------------------------------------------------------
+   if(IFLAG.eq.0) then
+     nrow1 = nlat1d
+     ncol1 = nlon1d
+     nrow2 = nlat2d
+     ncol2 = nlon2d
+   else
+   if(IFLAG.eq.1) then
+     nrow1 = nlat2d
+     ncol1 = nlon2d
+     nrow2 = nlat1d
+     ncol2 = nlon1d
+   end if
+   end if
+
+   npts1 = nrow1 * ncol1
+   npts2 = nrow2 * ncol2
+

@@ -1,0 +1,13 @@
+IdlPath = Expand_Path( '+' + !PATH,  /All_Dirs )
+Sep     = Path_Sep( /Search_Path )
+
+!PATH   = Expand_Path( '+/home/liufei/IDL/gamap2/',   /All_Dirs ) + Sep + IdlPath
+
+!PATH   = '/home/liufei/IDL/tools/:' + $
+          '/home/liufei/IDL/update/:'  +  !PATH
+
+.r bin_batch_2005.pro
+
+recall
+
+exit

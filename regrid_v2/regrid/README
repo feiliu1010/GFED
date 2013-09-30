@@ -1,0 +1,30 @@
+
+Netcdf regridding tools -  VERSION 2.00
+
+Martin G. Schultz, MPI for Meteorology, Hamburg, 14 April 2005
+
+
+Copyright: These files are IDL source codes and may be freely distributed
+and copied provided that this notice is always retained. If you would like to
+include this package in its original or in any modified form into a commercial 
+software package, you must inform the author about this and make all changes
+to the program available to him. Generally, I am always happy to receive
+information about bugs and their fixes or any improvements and/or optimisation.
+
+martin.schultz@dkrz.de
+
+
+Usage:
+
+   the main work horse of this package is ncregrid.pro - please check the
+program header for example calls and a more thorough description.
+
+
+Modification history:
+
+   Version 2 contains a number of small bug fixes and improvements.
+   Version 1 of this package was distributed in February 2005.
+
+
+ 
+
